@@ -61,7 +61,7 @@ const outputFieldPositions = [
 ]
 
 const widgetPosition = {
-  bottom: "800px",
+  bottom: "750px",
   left: "50%",
   transform: "translateX(-50%)",
 }
@@ -78,7 +78,7 @@ export const SmartHomeControl: React.FC = () => {
   })
 
   const [currentRoomIndex, setCurrentRoomIndex] = useState(0)
-  const [outputValues, setOutputValues] = useState({
+  const [outputValues] = useState({
     field1: 500,
     field2: 75,
     field3: true,
@@ -102,6 +102,11 @@ export const SmartHomeControl: React.FC = () => {
   const goToPreviousRoom = () => {
     setCurrentRoomIndex((prevIndex) => (prevIndex - 1 + rooms.length) % rooms.length)
   }
+
+  const buttonPositions = {
+    left: { left: "10px", top: "50%" },
+    right: { right: "100px", top: "50%" }
+  };
 
   return (
     <div
@@ -161,26 +166,26 @@ export const SmartHomeControl: React.FC = () => {
 
       {/* Room Selector Widget */}
       <div className="absolute font-montserrat" style={widgetPosition}>
-        <div className="flex items-center space-x-5">
+        <div className="flex items-center justify-center">
+          <div
+          className="w-[460px] h-[150px] rounded-[30px] flex items-center px-4 relative"
+          style={{
+            backgroundImage: "url('./main_slider.png')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+          >
           <button
             onClick={goToPreviousRoom}
-            className="w-[78px] h-[70px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
+            className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
             aria-label="Previous room"
+            style={buttonPositions.left}
           >
-            <ChevronLeft className="w-[37px] h-[37px] text-white" />
+            <ChevronLeft className="w-[30px] h-[30px] text-white" />
           </button>
 
-          <div
-            className="w-[361px] h-[106px] rounded-[30px] flex flex-col items-center justify-center relative"
-            style={{
-              backgroundImage:
-                "url(https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main_screen_widget_change-uxRNuuyFGYSKh4dYODfFVTVZfzQlnk.png)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            <h2 className="absolute top-0.5 text-2xl font-black text-white">{rooms[currentRoomIndex].name}</h2>
+          <h2 className="absolute top-0.5 text-2xl font-black text-white">{rooms[currentRoomIndex].name}</h2>
 
             {/* Output Fields */}
             <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[0]}>
@@ -201,17 +206,18 @@ export const SmartHomeControl: React.FC = () => {
             <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[5]}>
               {outputValues.field6}°
             </div>
-          </div>
 
           <button
             onClick={goToNextRoom}
-            className="w-[78px] h-[70px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
+            className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
             aria-label="Next room"
+            
           >
-            <ChevronRight className="w-[37px] h-[37px] text-white" />
+            <ChevronRight className="w-[30px] h-[30px] text-white" />
           </button>
-        </div>
       </div>
+    </div>
+    </div>
     </div>
   )
 }
