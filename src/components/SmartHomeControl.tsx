@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-import {
-  Settings2,
-  Wind,
-  Lightbulb,
-  Blinds,
-  Shield,
-  Thermometer,
-  Droplets,
-  Power,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Settings2, Wind, Lightbulb, Blinds, Shield, Thermometer, Droplets, Power, ChevronLeft, ChevronRight,} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ControlButtonProps {
@@ -63,12 +52,12 @@ const rooms = [
 ];
 
 const outputFieldPositions = [
-  { left: "11%", bottom: "15%" },
-  { left: "26%", bottom: "15%" },
-  { left: "40%", bottom: "15%" },
-  { left: "53%", bottom: "15%" },
-  { left: "68.4%", bottom: "15%" },
-  { left: "84%", bottom: "15%" },
+  { left: "22.5%", bottom: "30%" },
+  { left: "32%", bottom: "30%" },
+  { left: "42%", bottom: "30%" },
+  { left: "51%", bottom: "30%" },
+  { left: "63%", bottom: "30%" },
+  { left: "73%", bottom: "30%" },
 ];
 
 const widgetPosition = {
@@ -115,8 +104,8 @@ export const SmartHomeControl: React.FC = () => {
   };
 
   const buttonPositions = {
-    left: { left: "10px", top: "50%" },
-    right: { right: "100px", top: "50%" },
+    left: { left: "15px", top: "50%" },
+    right: { left: "387px", top: "50%" },
   };
 
   return (
@@ -189,14 +178,16 @@ export const SmartHomeControl: React.FC = () => {
           >
             <button
               onClick={goToPreviousRoom}
-              className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
+              className="w-[60px] h-[60px] bg-white/20 rounded-full flex items-center justify-center absolute left-2 top-1/2 transform -translate-y-1/2"
               aria-label="Previous room"
               style={buttonPositions.left}
             >
               <ChevronLeft className="w-[30px] h-[30px] text-white" />
             </button>
 
-            <h2 className="absolute top-0.5 text-2xl font-black text-white">{rooms[currentRoomIndex].name}</h2>
+            <h2 className="absolute top-4 left-1/2 transform -translate-x-1/2 text-2xl font-black text-white">
+              {rooms[currentRoomIndex].name}
+            </h2>
 
             {/* Output Fields */}
             <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[0]}>
@@ -220,8 +211,9 @@ export const SmartHomeControl: React.FC = () => {
 
             <button
               onClick={goToNextRoom}
-              className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
+              className="w-[60px] h-[60px] bg-white/20 rounded-full flex items-center justify-center absolute right-2 top-1/2 transform -translate-y-1/2"
               aria-label="Next room"
+              style={buttonPositions.right}
             >
               <ChevronRight className="w-[30px] h-[30px] text-white" />
             </button>
