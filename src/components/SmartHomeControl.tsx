@@ -1,5 +1,16 @@
 import React, { useState } from "react";
-import { Settings2, Wind, Lightbulb, Blinds, Shield, Thermometer, Droplets, Power, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Settings2,
+  Wind,
+  Lightbulb,
+  Blinds,
+  Shield,
+  Thermometer,
+  Droplets,
+  Power,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ControlButtonProps {
@@ -49,7 +60,7 @@ const rooms = [
   { id: "balcony", name: "Балкон" },
   { id: "laundry", name: "Прачечная" },
   { id: "guest_room", name: "Гостевая" },
-]
+];
 
 const outputFieldPositions = [
   { left: "11%", bottom: "15%" },
@@ -58,16 +69,16 @@ const outputFieldPositions = [
   { left: "53%", bottom: "15%" },
   { left: "68.4%", bottom: "15%" },
   { left: "84%", bottom: "15%" },
-]
+];
 
 const widgetPosition = {
   bottom: "750px",
   left: "50%",
   transform: "translateX(-50%)",
-}
+};
 
 export const SmartHomeControl: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [controlStates, setControlStates] = useState({
     ventilation: false,
     light: false,
@@ -75,9 +86,9 @@ export const SmartHomeControl: React.FC = () => {
     security: false,
     temperature: false,
     humidity: false,
-  })
+  });
 
-  const [currentRoomIndex, setCurrentRoomIndex] = useState(0)
+  const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
   const [outputValues] = useState({
     field1: 500,
     field2: 75,
@@ -85,27 +96,27 @@ export const SmartHomeControl: React.FC = () => {
     field4: false,
     field5: 50,
     field6: 22,
-  })
+  });
 
   const handleControl = (type: string) => {
-    navigate(`/${type}`)
-  }
+    navigate(`/${type}`);
+  };
 
   const handleToggle = (type: keyof typeof controlStates, value: boolean) => {
-    setControlStates((prev) => ({ ...prev, [type]: value }))
-  }
+    setControlStates((prev) => ({ ...prev, [type]: value }));
+  };
 
   const goToNextRoom = () => {
-    setCurrentRoomIndex((prevIndex) => (prevIndex + 1) % rooms.length)
-  }
+    setCurrentRoomIndex((prevIndex) => (prevIndex + 1) % rooms.length);
+  };
 
   const goToPreviousRoom = () => {
-    setCurrentRoomIndex((prevIndex) => (prevIndex - 1 + rooms.length) % rooms.length)
-  }
+    setCurrentRoomIndex((prevIndex) => (prevIndex - 1 + rooms.length) % rooms.length);
+  };
 
   const buttonPositions = {
-    left: { left: "120px", top: "50%" },
-    right: { right: "120px", top: "50%" }
+    left: { left: "10px", top: "50%" },
+    right: { right: "100px", top: "50%" },
   };
 
   return (
@@ -168,24 +179,24 @@ export const SmartHomeControl: React.FC = () => {
       <div className="absolute font-montserrat" style={widgetPosition}>
         <div className="flex items-center justify-center">
           <div
-          className="w-[460px] h-[150px] rounded-[30px] flex items-center px-4 relative"
-          style={{
-            backgroundImage: "url('./main_slider.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
+            className="w-[460px] h-[150px] rounded-[30px] flex items-center px-4 relative"
+            style={{
+              backgroundImage: "url('src/components/main_slider.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
           >
-          <button
-            onClick={goToPreviousRoom}
-            className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
-            aria-label="Previous room"
-            style={buttonPositions.left}
-          >
-            <ChevronLeft className="w-[30px] h-[30px] text-white" />
-          </button>
+            <button
+              onClick={goToPreviousRoom}
+              className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
+              aria-label="Previous room"
+              style={buttonPositions.left}
+            >
+              <ChevronLeft className="w-[30px] h-[30px] text-white" />
+            </button>
 
-          <h2 className="absolute top-0.5 text-2xl font-black text-white">{rooms[currentRoomIndex].name}</h2>
+            <h2 className="absolute top-0.5 text-2xl font-black text-white">{rooms[currentRoomIndex].name}</h2>
 
             {/* Output Fields */}
             <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[0]}>
@@ -207,17 +218,16 @@ export const SmartHomeControl: React.FC = () => {
               {outputValues.field6}°
             </div>
 
-          <button
-            onClick={goToNextRoom}
-            className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
-            aria-label="Next room"
-            style={buttonPositions.right}
-          >
-            <ChevronRight className="w-[30px] h-[30px] text-white" />
-          </button>
+            <button
+              onClick={goToNextRoom}
+              className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
+              aria-label="Next room"
+            >
+              <ChevronRight className="w-[30px] h-[30px] text-white" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-    </div>
-    </div>
-  )
-}
+  );
+};
