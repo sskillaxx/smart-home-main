@@ -104,8 +104,8 @@ export const SmartHomeControl: React.FC = () => {
   }
 
   const buttonPositions = {
-    left: { left: "10px", top: "50%" },
-    right: { right: "100px", top: "50%" }
+    left: { left: "120px", top: "50%" },
+    right: { right: "120px", top: "50%" }
   };
 
   return (
@@ -211,7 +211,7 @@ export const SmartHomeControl: React.FC = () => {
             onClick={goToNextRoom}
             className="w-[60px] h-[60px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
             aria-label="Next room"
-            
+            style={buttonPositions.right}
           >
             <ChevronRight className="w-[30px] h-[30px] text-white" />
           </button>
