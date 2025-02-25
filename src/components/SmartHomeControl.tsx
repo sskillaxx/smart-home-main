@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings2, Wind, Lightbulb, Blinds, Shield, Thermometer, Droplets, Power } from "lucide-react";
+import { Settings2, Wind, Lightbulb, Blinds, Shield, Thermometer, Droplets, Power, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ControlButtonProps {
@@ -38,8 +38,36 @@ const ControlButton: React.FC<ControlButtonProps> = ({ icon, label, onClick, onT
   </div>
 );
 
+const rooms = [
+  { id: "bedroom", name: "Спальня" },
+  { id: "living_room", name: "Гостинная" },
+  { id: "bathroom_1", name: "Санузел 1" },
+  { id: "bathroom_2", name: "Санузел 2" },
+  { id: "terrace_1", name: "Терраса 1" },
+  { id: "terrace_2", name: "Терраса 2" },
+  { id: "kitchen", name: "Кухня" },
+  { id: "balcony", name: "Балкон" },
+  { id: "laundry", name: "Прачечная" },
+  { id: "guest_room", name: "Гостевая" },
+]
+
+const outputFieldPositions = [
+  { left: "11%", bottom: "15%" },
+  { left: "26%", bottom: "15%" },
+  { left: "40%", bottom: "15%" },
+  { left: "53%", bottom: "15%" },
+  { left: "68.4%", bottom: "15%" },
+  { left: "84%", bottom: "15%" },
+]
+
+const widgetPosition = {
+  bottom: "800px",
+  left: "50%",
+  transform: "translateX(-50%)",
+}
+
 export const SmartHomeControl: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const [controlStates, setControlStates] = useState({
     ventilation: false,
     light: false,
@@ -47,19 +75,37 @@ export const SmartHomeControl: React.FC = () => {
     security: false,
     temperature: false,
     humidity: false,
-  });
+  })
+
+  const [currentRoomIndex, setCurrentRoomIndex] = useState(0)
+  const [outputValues, setOutputValues] = useState({
+    field1: 500,
+    field2: 75,
+    field3: true,
+    field4: false,
+    field5: 50,
+    field6: 22,
+  })
 
   const handleControl = (type: string) => {
-    navigate(`/${type}`);
-  };
+    navigate(`/${type}`)
+  }
 
   const handleToggle = (type: keyof typeof controlStates, value: boolean) => {
-    setControlStates((prev) => ({ ...prev, [type]: value }));
-  };
+    setControlStates((prev) => ({ ...prev, [type]: value }))
+  }
+
+  const goToNextRoom = () => {
+    setCurrentRoomIndex((prevIndex) => (prevIndex + 1) % rooms.length)
+  }
+
+  const goToPreviousRoom = () => {
+    setCurrentRoomIndex((prevIndex) => (prevIndex - 1 + rooms.length) % rooms.length)
+  }
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center"
+      className="min-h-screen bg-cover bg-center relative"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')",
@@ -112,6 +158,60 @@ export const SmartHomeControl: React.FC = () => {
           />
         </div>
       </div>
+
+      {/* Room Selector Widget */}
+      <div className="absolute font-montserrat" style={widgetPosition}>
+        <div className="flex items-center space-x-5">
+          <button
+            onClick={goToPreviousRoom}
+            className="w-[78px] h-[70px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
+            aria-label="Previous room"
+          >
+            <ChevronLeft className="w-[37px] h-[37px] text-white" />
+          </button>
+
+          <div
+            className="w-[361px] h-[106px] rounded-[30px] flex flex-col items-center justify-center relative"
+            style={{
+              backgroundImage:
+                "url(https://hebbkx1anhila5yf.public.blob.vercel-storage.com/main_screen_widget_change-uxRNuuyFGYSKh4dYODfFVTVZfzQlnk.png)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <h2 className="absolute top-0.5 text-2xl font-black text-white">{rooms[currentRoomIndex].name}</h2>
+
+            {/* Output Fields */}
+            <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[0]}>
+              {outputValues.field1}
+            </div>
+            <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[1]}>
+              {outputValues.field2}%
+            </div>
+            <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[2]}>
+              {outputValues.field3 ? "вкл." : "выкл."}
+            </div>
+            <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[3]}>
+              {outputValues.field4 ? "вкл." : "выкл."}
+            </div>
+            <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[4]}>
+              {outputValues.field5}%
+            </div>
+            <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[5]}>
+              {outputValues.field6}°
+            </div>
+          </div>
+
+          <button
+            onClick={goToNextRoom}
+            className="w-[78px] h-[70px] bg-[#B49C82] brightness-90 rounded-[30px] flex items-center justify-center"
+            aria-label="Next room"
+          >
+            <ChevronRight className="w-[37px] h-[37px] text-white" />
+          </button>
+        </div>
+      </div>
     </div>
-  );
-};
+  )
+}
