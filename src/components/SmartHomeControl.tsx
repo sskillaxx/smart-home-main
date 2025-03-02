@@ -1,13 +1,27 @@
-import React, { useState } from "react";
-import { Settings2, Wind, Lightbulb, Blinds, Shield, Thermometer, Droplets, Power, ChevronLeft, ChevronRight,} from "lucide-react";
-import { useNavigate } from "react-router-dom";
+"use client"
+
+import type React from "react"
+import { useState } from "react"
+import {
+  Settings2,
+  Wind,
+  Lightbulb,
+  Blinds,
+  Shield,
+  Thermometer,
+  Droplets,
+  Power,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 interface ControlButtonProps {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  onToggle: (isOn: boolean) => void;
-  isOn: boolean;
+  icon: React.ReactNode
+  label: string
+  onClick: () => void
+  onToggle: (isOn: boolean) => void
+  isOn: boolean
 }
 
 const ControlButton: React.FC<ControlButtonProps> = ({ icon, label, onClick, onToggle, isOn }) => (
@@ -19,8 +33,8 @@ const ControlButton: React.FC<ControlButtonProps> = ({ icon, label, onClick, onT
       <div className="absolute top-2 left-2">
         <button
           onClick={(e) => {
-            e.stopPropagation();
-            onToggle(!isOn);
+            e.stopPropagation()
+            onToggle(!isOn)
           }}
           className={`w-6 h-6 rounded-full flex items-center justify-center ${isOn ? "bg-green-500" : "bg-gray-400"}`}
         >
@@ -36,7 +50,7 @@ const ControlButton: React.FC<ControlButtonProps> = ({ icon, label, onClick, onT
       <span className="text-white text-sm font-medium">{label}</span>
     </button>
   </div>
-);
+)
 
 const rooms = [
   { id: "bedroom", name: "Спальня" },
@@ -49,25 +63,29 @@ const rooms = [
   { id: "balcony", name: "Балкон" },
   { id: "laundry", name: "Прачечная" },
   { id: "guest_room", name: "Гостевая" },
-];
+]
 
 const outputFieldPositions = [
-  { left: "22.5%", bottom: "30%" },
-  { left: "32%", bottom: "30%" },
-  { left: "42%", bottom: "30%" },
-  { left: "51%", bottom: "30%" },
-  { left: "63%", bottom: "30%" },
-  { left: "73%", bottom: "30%" },
-];
+  { left: "calc(10% + 12.5%)", bottom: "30%" },
+  { left: "calc(20% + 12%)", bottom: "30%" },
+  { left: "calc(30% + 12%)", bottom: "30%" },
+  { left: "calc(40% + 11%)", bottom: "30%" },
+  { left: "calc(50% + 13%)", bottom: "30%" },
+  { left: "calc(60% + 13%)", bottom: "30%" },
+]
 
 const widgetPosition = {
-  bottom: "750px",
+  position: "fixed",
+  top: "20px",
   left: "50%",
   transform: "translateX(-50%)",
-};
+  width: "100%",
+  maxWidth: "460px",
+  zIndex: 10,
+}
 
 export const SmartHomeControl: React.FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const [controlStates, setControlStates] = useState({
     ventilation: false,
     light: false,
@@ -75,9 +93,9 @@ export const SmartHomeControl: React.FC = () => {
     security: false,
     temperature: false,
     humidity: false,
-  });
+  })
 
-  const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
+  const [currentRoomIndex, setCurrentRoomIndex] = useState(0)
   const [outputValues] = useState({
     field1: 500,
     field2: 75,
@@ -85,28 +103,28 @@ export const SmartHomeControl: React.FC = () => {
     field4: false,
     field5: 50,
     field6: 22,
-  });
+  })
 
   const handleControl = (type: string) => {
-    navigate(`/${type}`);
-  };
+    navigate(`/${type}`)
+  }
 
   const handleToggle = (type: keyof typeof controlStates, value: boolean) => {
-    setControlStates((prev) => ({ ...prev, [type]: value }));
-  };
+    setControlStates((prev) => ({ ...prev, [type]: value }))
+  }
 
   const goToNextRoom = () => {
-    setCurrentRoomIndex((prevIndex) => (prevIndex + 1) % rooms.length);
-  };
+    setCurrentRoomIndex((prevIndex) => (prevIndex + 1) % rooms.length)
+  }
 
   const goToPreviousRoom = () => {
-    setCurrentRoomIndex((prevIndex) => (prevIndex - 1 + rooms.length) % rooms.length);
-  };
+    setCurrentRoomIndex((prevIndex) => (prevIndex - 1 + rooms.length) % rooms.length)
+  }
 
   const buttonPositions = {
-    left: { left: "15px", top: "50%" },
-    right: { left: "387px", top: "50%" },
-  };
+    left: { left: "15px", top: "50%", transform: "translateY(-50%)" },
+    right: { right: "15px", top: "50%", transform: "translateY(-50%)" },
+  }
 
   return (
     <div
@@ -117,7 +135,9 @@ export const SmartHomeControl: React.FC = () => {
       }}
     >
       <div className="min-h-screen bg-black bg-opacity-50 flex flex-col items-center justify-center p-4">
-        <h1 className="text-[#F4D03F] text-4xl font-bold mb-12">Добро пожаловать!</h1>
+        <h1 className="text-[#F4D03F] text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 md:mb-12 mt-20 sm:mt-24 md:mt-28">
+          Добро пожаловать!
+        </h1>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           <ControlButton
             icon={<Wind className="w-8 h-8" />}
@@ -165,10 +185,10 @@ export const SmartHomeControl: React.FC = () => {
       </div>
 
       {/* Room Selector Widget */}
-      <div className="absolute font-montserrat" style={widgetPosition}>
+      <div className="font-montserrat" style={widgetPosition}>
         <div className="flex items-center justify-center">
           <div
-            className="w-[460px] h-[150px] rounded-[30px] flex items-center px-4 relative"
+            className="w-full h-[150px] rounded-[30px] flex items-center px-4 relative"
             style={{
               backgroundImage: "url('src/components/main_slider.png')",
               backgroundSize: "cover",
@@ -221,5 +241,6 @@ export const SmartHomeControl: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
+
