@@ -1,44 +1,49 @@
-import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import type { Swiper as SwiperType } from "swiper";
-import "swiper/css";
-import { Link } from "react-router-dom";
+"use client"
 
-type Widget = "living_room" | "guest_room" | "balcony" | "kitchen";
+import { ArrowLeft } from "lucide-react"
+import { useState } from "react"
+import { Swiper, SwiperSlide } from "swiper/react"
+import type { Swiper as SwiperType } from "swiper"
+import "swiper/css"
+import { Link } from "react-router-dom"
+
+type Widget = "living_room" | "guest_room" | "balcony" | "kitchen"
 
 type TimeState = {
   [key in Widget]: {
-    isOn: boolean;
-    openTime: string;
-    closeTime: string;
-  };
-};
+    isOn1: boolean
+    isOn2: boolean
+    isOn3: boolean
+    isOn4: boolean
+    openTime: string
+    closeTime: string
+  }
+}
 
 export default function RollersPage() {
   const [times, setTimes] = useState<TimeState>({
-    living_room: { isOn: false, openTime: "00:00", closeTime: "00:00" },
-    guest_room: { isOn: false, openTime: "00:00", closeTime: "00:00" },
-    balcony: { isOn: false, openTime: "00:00", closeTime: "00:00" },
-    kitchen: { isOn: false, openTime: "00:00", closeTime: "00:00" },
-  });
-  const [activeWidget, setActiveWidget] = useState<Widget>("living_room");
-  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
+    living_room: { isOn1: false, isOn2: false, isOn3: false, isOn4: false, openTime: "00:00", closeTime: "00:00" },
+    guest_room: { isOn1: false, isOn2: false, isOn3: false, isOn4: false, openTime: "00:00", closeTime: "00:00" },
+    balcony: { isOn1: false, isOn2: false, isOn3: false, isOn4: false, openTime: "00:00", closeTime: "00:00" },
+    kitchen: { isOn1: false, isOn2: false, isOn3: false, isOn4: false, openTime: "00:00", closeTime: "00:00" },
+  })
+  const [activeWidget, setActiveWidget] = useState<Widget>("living_room")
+  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null)
 
   const handleWidgetClick = (widget: Widget) => {
-    setActiveWidget(widget);
+    setActiveWidget(widget)
     if (swiperInstance) {
       if (widget === "guest_room") {
-        swiperInstance.slideTo(2);
+        swiperInstance.slideTo(2)
       } else if (widget === "balcony") {
-        swiperInstance.slideTo(4);
+        swiperInstance.slideTo(4)
       } else if (widget === "kitchen") {
-        swiperInstance.slideTo(5); // Kitchen center, balcony left, plus right
+        swiperInstance.slideTo(5) // Kitchen center, balcony left, plus right
       } else {
-        swiperInstance.slideTo(3);
+        swiperInstance.slideTo(3)
       }
     }
-  };
+  }
 
   const handleTimeChange = (widget: Widget, field: "openTime" | "closeTime", value: string) => {
     if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value) || value === "") {
@@ -48,9 +53,9 @@ export default function RollersPage() {
           ...prev[widget],
           [field]: value,
         },
-      }));
+      }))
     }
-  };
+  }
 
   const renderPlaceholderWidget = () => (
     <div
@@ -64,10 +69,10 @@ export default function RollersPage() {
         backgroundPosition: "center",
       }}
     />
-  );
+  )
 
   const renderWidget = (widget: Widget) => {
-    const isActive = widget === activeWidget;
+    const isActive = widget === activeWidget
 
     const widgetStyle = {
       width: isActive ? "276px" : "184px",
@@ -80,23 +85,51 @@ export default function RollersPage() {
       transition: "all 0.3s ease-in-out",
       cursor: "pointer",
       position: "relative" as const,
-    };
+    }
 
     return (
       <div className="rounded-[30px]" style={widgetStyle} onClick={() => handleWidgetClick(widget)}>
         {isActive && (
           <>
-            {/* Toggle button at top */}
+            {/* Text field for Auto mode */}
+            <div
+              className="absolute"
+              style={{
+                left: "45px",
+                top: "240px",
+                fontFamily: "Montserrat, sans-serif",
+                fontSize: "16px",
+                color: "#604A3E",
+              }}
+            >
+              Авто-режим
+            </div>
+
+            {/* Text field for Roller state */}
+            <div
+              className="absolute"
+              style={{
+                left: "30px",
+                top: "370px",
+                fontFamily: "Montserrat, sans-serif",
+                fontSize: "16px",
+                color: "#604A3E",
+              }}
+            >
+              Открыть шторы
+            </div>
+
+            {/* First toggle button */}
             <button
               onClick={(e) => {
-                e.stopPropagation();
+                e.stopPropagation()
                 setTimes((prev) => ({
                   ...prev,
                   [widget]: {
                     ...prev[widget],
-                    isOn: !prev[widget].isOn,
+                    isOn1: !prev[widget].isOn1,
                   },
-                }));
+                }))
               }}
               className="absolute rounded-full transition-all duration-450 cursor-pointer"
               style={{
@@ -104,7 +137,7 @@ export default function RollersPage() {
                 top: "20px",
                 width: "40px",
                 height: "24px",
-                backgroundColor: times[widget].isOn ? "#AB7743" : "#57493C",
+                backgroundColor: times[widget].isOn1 ? "#AB7743" : "#57493C",
               }}
             >
               <div
@@ -112,70 +145,187 @@ export default function RollersPage() {
                 style={{
                   width: "20px",
                   height: "20px",
-                  left: times[widget].isOn ? "17px" : "3px",
+                  left: times[widget].isOn1 ? "17px" : "3px",
                   top: "2px",
                 }}
               />
             </button>
 
-            {/* Open time input */}
-            <input
-              type="time"
-              value={times[widget].openTime}
-              onChange={(e) => handleTimeChange(widget, "openTime", e.target.value)}
-              className="absolute bg-transparent text-[#604A3E]"
-              style={{
-                left: "156px",
-                top: "287px",
-                border: "none",
-                outline: "none",
+            {/* Second toggle button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setTimes((prev) => ({
+                  ...prev,
+                  [widget]: {
+                    ...prev[widget],
+                    isOn2: !prev[widget].isOn2,
+                  },
+                }))
               }}
-            />
+              className="absolute rounded-full transition-all duration-450 cursor-pointer"
+              style={{
+                right: "71px",
+                top: "240px",
+                width: "40px",
+                height: "24px",
+                backgroundColor: times[widget].isOn2 ? "#AB7743" : "#57493C",
+              }}
+            >
+              <div
+                className="absolute rounded-full bg-white transition-all duration-300"
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  left: times[widget].isOn2 ? "17px" : "3px",
+                  top: "2px",
+                }}
+              />
+            </button>
 
-            {/* Close time input */}
-            <input
-              type="time"
-              value={times[widget].closeTime}
-              onChange={(e) => handleTimeChange(widget, "closeTime", e.target.value)}
-              className="absolute bg-transparent text-[#604A3E]"
-              style={{
-                left: "157px",
-                top: "335px",
-                border: "none",
-                outline: "none",
+            {/* Third toggle button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setTimes((prev) => ({
+                  ...prev,
+                  [widget]: {
+                    ...prev[widget],
+                    isOn3: !prev[widget].isOn3,
+                    isOn4: prev[widget].isOn3 ? prev[widget].isOn4 : false, // If turning on isOn3, ensure isOn4 is off
+                  },
+                }))
               }}
-            />
+              className="absolute rounded-full transition-all duration-450 cursor-pointer"
+              style={{
+                right: "25px",
+                top: "370px",
+                width: "40px",
+                height: "24px",
+                backgroundColor: times[widget].isOn3 ? "#AB7743" : "#57493C",
+              }}
+            >
+              <div
+                className="absolute rounded-full bg-white transition-all duration-300"
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  left: times[widget].isOn3 ? "17px" : "3px",
+                  top: "2px",
+                }}
+              />
+            </button>
+
+            {/* Text field for Disabled state */}
+            <div
+              className="absolute"
+              style={{
+                left: "30px",
+                top: "400px",
+                fontFamily: "Montserrat, sans-serif",
+                fontSize: "16px",
+                color: "#604A3E",
+              }}
+            >
+              Закрыть шторы
+            </div>
+
+            {/* Fourth toggle button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setTimes((prev) => ({
+                  ...prev,
+                  [widget]: {
+                    ...prev[widget],
+                    isOn4: !prev[widget].isOn4,
+                    isOn3: prev[widget].isOn4 ? prev[widget].isOn3 : false, // If turning on isOn4, ensure isOn3 is off
+                  },
+                }))
+              }}
+              className="absolute rounded-full transition-all duration-450 cursor-pointer"
+              style={{
+                right: "25px",
+                top: "400px",
+                width: "40px",
+                height: "24px",
+                backgroundColor: times[widget].isOn4 ? "#AB7743" : "#57493C",
+              }}
+            >
+              <div
+                className="absolute rounded-full bg-white transition-all duration-300"
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  left: times[widget].isOn4 ? "17px" : "3px",
+                  top: "2px",
+                }}
+              />
+            </button>
+
+            {/* Time inputs - only show when isOn1 is true */}
+            {times[widget].isOn1 && (
+              <>
+                {/* Open time input */}
+                <input
+                  type="time"
+                  value={times[widget].openTime}
+                  onChange={(e) => handleTimeChange(widget, "openTime", e.target.value)}
+                  className="absolute bg-transparent text-[#604A3E]"
+                  style={{
+                    left: "156px",
+                    top: "287px",
+                    border: "none",
+                    outline: "none",
+                  }}
+                />
+
+                {/* Close time input */}
+                <input
+                  type="time"
+                  value={times[widget].closeTime}
+                  onChange={(e) => handleTimeChange(widget, "closeTime", e.target.value)}
+                  className="absolute bg-transparent text-[#604A3E]"
+                  style={{
+                    left: "157px",
+                    top: "335px",
+                    border: "none",
+                    outline: "none",
+                  }}
+                />
+              </>
+            )}
           </>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   const getWidgetImage = (widget: Widget, isActive: boolean) => {
     if (!isActive) {
       switch (widget) {
         case "living_room":
-          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-4xyaEYMAQ9XshK1XRSNWLEjmkc6J7e.png";
+          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-4xyaEYMAQ9XshK1XRSNWLEjmkc6J7e.png"
         case "guest_room":
-          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_small-WKADPKjxH2p6lfLwjlJ5q2QzgsmjZi.png";
+          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_small-WKADPKjxH2p6lfLwjlJ5q2QzgsmjZi.png"
         case "balcony":
-          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_small-Tiafzw9XhzV7cAC936wC4OlDpejVyk.png";
+          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_small-Tiafzw9XhzV7cAC936wC4OlDpejVyk.png"
         case "kitchen":
-          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_small-wD43fSo1Y684jh8rrV9NBMYcVdcieH.png";
+          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_small-wD43fSo1Y684jh8rrV9NBMYcVdcieH.png"
       }
     }
 
     switch (widget) {
       case "living_room":
-        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big-zlQhGtNeBjZvn3ec3RXUltdqfkC1OC.png";
+        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big-zlQhGtNeBjZvn3ec3RXUltdqfkC1OC.png"
       case "guest_room":
-        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big-jFLz5cCMcnUEsZrNQ3s145DLe6m2Wn.png";
+        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big-jFLz5cCMcnUEsZrNQ3s145DLe6m2Wn.png"
       case "balcony":
-        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_big-SIQzAxvEzd17neRgxMu8Tr23JjfoHj.png";
+        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_big-SIQzAxvEzd17neRgxMu8Tr23JjfoHj.png"
       case "kitchen":
-        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_big-6JcoYI4i91yPye2rrJqQRNAKX8T4TN.png";
+        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_big-6JcoYI4i91yPye2rrJqQRNAKX8T4TN.png"
     }
-  };
+  }
 
   return (
     <main className="relative h-screen w-screen overflow-hidden">
@@ -251,5 +401,5 @@ export default function RollersPage() {
         </div>
       </div>
     </main>
-  );
+  )
 }
