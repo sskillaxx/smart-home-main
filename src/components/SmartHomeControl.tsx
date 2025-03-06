@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
+import type React from "react";
+import { useEffect, useState } from "react";
 import {
   Settings2,
   Wind,
@@ -13,15 +13,23 @@ import {
   Power,
   ChevronLeft,
   ChevronRight,
-} from "lucide-react"
-import { useNavigate } from "react-router-dom"
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useHumidity, useLight, useSecurity, useTemperature, useVentilation } from "../hooks/useSensors";
+import {
+  useSetHumidity,
+  useSetLight,
+  useSetSecurity,
+  useSetTemperature,
+  useSetVentilation,
+} from "../hooks/useSettings";
 
 interface ControlButtonProps {
-  icon: React.ReactNode
-  label: string
-  onClick: () => void
-  onToggle: (isOn: boolean) => void
-  isOn: boolean
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  onToggle: (isOn: boolean) => void;
+  isOn: boolean;
 }
 
 const ControlButton: React.FC<ControlButtonProps> = ({ icon, label, onClick, onToggle, isOn }) => (
@@ -33,8 +41,8 @@ const ControlButton: React.FC<ControlButtonProps> = ({ icon, label, onClick, onT
       <div className="absolute top-2 left-2">
         <button
           onClick={(e) => {
-            e.stopPropagation()
-            onToggle(!isOn)
+            e.stopPropagation();
+            onToggle(!isOn);
           }}
           className={`w-6 h-6 rounded-full flex items-center justify-center ${isOn ? "bg-green-500" : "bg-gray-400"}`}
         >
@@ -50,20 +58,20 @@ const ControlButton: React.FC<ControlButtonProps> = ({ icon, label, onClick, onT
       <span className="text-white text-sm font-medium">{label}</span>
     </button>
   </div>
-)
+);
 
 const rooms = [
   { id: "bedroom", name: "Спальня" },
-  { id: "living_room", name: "Гостинная" },
-  { id: "bathroom_1", name: "Санузел 1" },
-  { id: "bathroom_2", name: "Санузел 2" },
-  { id: "terrace_1", name: "Терраса 1" },
-  { id: "terrace_2", name: "Терраса 2" },
-  { id: "kitchen", name: "Кухня" },
-  { id: "balcony", name: "Балкон" },
-  { id: "laundry", name: "Прачечная" },
-  { id: "guest_room", name: "Гостевая" },
-]
+  // { id: "living_room", name: "Гостинная" },
+  // { id: "bathroom_1", name: "Санузел 1" },
+  // { id: "bathroom_2", name: "Санузел 2" },
+  // { id: "terrace_1", name: "Терраса 1" },
+  // { id: "terrace_2", name: "Терраса 2" },
+  // { id: "kitchen", name: "Кухня" },
+  // { id: "balcony", name: "Балкон" },
+  // { id: "laundry", name: "Прачечная" },
+  // { id: "guest_room", name: "Гостевая" },
+];
 
 const outputFieldPositions = [
   { left: "calc(10% + 12.5%)", bottom: "30%" },
@@ -72,7 +80,7 @@ const outputFieldPositions = [
   { left: "calc(40% + 11%)", bottom: "30%" },
   { left: "calc(50% + 13%)", bottom: "30%" },
   { left: "calc(60% + 13%)", bottom: "30%" },
-]
+];
 
 const widgetPosition = {
   position: "fixed",
@@ -82,10 +90,10 @@ const widgetPosition = {
   width: "100%",
   maxWidth: "460px",
   zIndex: 10,
-}
+};
 
 export const SmartHomeControl: React.FC = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [controlStates, setControlStates] = useState({
     ventilation: false,
     light: false,
@@ -93,38 +101,88 @@ export const SmartHomeControl: React.FC = () => {
     security: false,
     temperature: false,
     humidity: false,
-  })
+  });
 
-  const [currentRoomIndex, setCurrentRoomIndex] = useState(0)
-  const [outputValues] = useState({
+  const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
+  const [outputValues, setOutputValues] = useState({
     field1: 500,
-    field2: 75,
+    field2: true,
     field3: true,
     field4: false,
     field5: 50,
     field6: 22,
-  })
+  });
+
+  const mutateTemperatureState = useSetTemperature();
+  const mutateVentilationState = useSetVentilation();
+  const mutateHumidityState = useSetHumidity();
+  const mutateSecurityState = useSetSecurity();
+  const mutateLigthState = useSetLight();
 
   const handleControl = (type: string) => {
-    navigate(`/${type}`)
-  }
+    navigate(`/${type}`);
+  };
 
   const handleToggle = (type: keyof typeof controlStates, value: boolean) => {
-    setControlStates((prev) => ({ ...prev, [type]: value }))
-  }
+    setControlStates((prev) => ({ ...prev, [type]: value }));
+
+    switch (type) {
+      case "humidity":
+        mutateHumidityState.mutate({ state: value ? 1 : 0, humidity: "" });
+        break;
+      case "light":
+        mutateLigthState.mutate({ state: value ? 1 : 0, duration: "", mode: "" });
+        break;
+      case "security":
+        mutateSecurityState.mutate({ state: value ? 1 : 0 });
+        break;
+      case "temperature":
+        mutateTemperatureState.mutate({ state: value ? 1 : 0, targetTemperature: "" });
+        break;
+      case "ventilation":
+        mutateVentilationState.mutate({ state: value ? 1 : 0 });
+        break;
+    }
+  };
 
   const goToNextRoom = () => {
-    setCurrentRoomIndex((prevIndex) => (prevIndex + 1) % rooms.length)
-  }
+    setCurrentRoomIndex((prevIndex) => (prevIndex + 1) % rooms.length);
+  };
 
   const goToPreviousRoom = () => {
-    setCurrentRoomIndex((prevIndex) => (prevIndex - 1 + rooms.length) % rooms.length)
-  }
+    setCurrentRoomIndex((prevIndex) => (prevIndex - 1 + rooms.length) % rooms.length);
+  };
+
+  const { data: temperatureData } = useTemperature();
+  const { data: humidityData } = useHumidity();
+  const { data: ventialtionData } = useVentilation();
+  const { data: securityData } = useSecurity();
+  const { data: lightData } = useLight();
+
+  useEffect(() => {
+    setOutputValues({
+      field1: 500,
+      field2: lightData ? lightData.state === "on" : false,
+      field3: ventialtionData ? ventialtionData.state === "on" : false,
+      field4: securityData ? securityData.state === "on" : false,
+      field5: humidityData ? humidityData?.humidity : 0,
+      field6: temperatureData ? temperatureData?.temperature : 0,
+    });
+
+    setControlStates({
+      ventilation: ventialtionData ? ventialtionData.state === "on" : false,
+      humidity: humidityData ? humidityData.state === "on" : false,
+      light: lightData ? lightData.state === "on" : false,
+      security: securityData ? securityData.state === "on" : false,
+      temperature: temperatureData ? temperatureData.state === "on" : false,
+      blinds: true,
+    });
+  }, [temperatureData, humidityData, ventialtionData, securityData, lightData]);
 
   const buttonPositions = {
     left: { left: "15px", top: "50%", transform: "translateY(-50%)" },
     right: { right: "15px", top: "50%", transform: "translateY(-50%)" },
-  }
+  };
 
   return (
     <div
@@ -214,7 +272,7 @@ export const SmartHomeControl: React.FC = () => {
               {outputValues.field1}
             </div>
             <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[1]}>
-              {outputValues.field2}%
+              {outputValues.field2 ? "вкл." : "выкл."}
             </div>
             <div className="absolute text-xs font-medium text-white" style={outputFieldPositions[2]}>
               {outputValues.field3 ? "вкл." : "выкл."}
@@ -241,6 +299,5 @@ export const SmartHomeControl: React.FC = () => {
         </div>
       </div>
     </div>
-  )
-}
-
+  );
+};

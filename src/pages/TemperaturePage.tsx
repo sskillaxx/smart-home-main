@@ -4,19 +4,11 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import { Link } from "react-router-dom";
+import { useSetTemperature } from "../hooks/useSettings";
 
-type Widget = "bedroom" | "living_room" | "bathroom" | "terrace" | "kitchen" | "balcony" | "laundry" | "guest_room";
+type Widget = "bedroom";
 
-const widgetOrder: Widget[] = [
-  "bedroom",
-  "living_room",
-  "bathroom",
-  "terrace",
-  "kitchen",
-  "balcony",
-  "laundry",
-  "guest_room",
-];
+const widgetOrder: Widget[] = ["bedroom"];
 
 type TemperatureState = {
   [key in Widget]: {
@@ -29,16 +21,11 @@ export default function TemperaturePage() {
   const [isOn, setIsOn] = useState(true);
   const [temperatures, setTemperatures] = useState<TemperatureState>({
     bedroom: { temp1: "22" },
-    living_room: { temp1: "22" },
-    bathroom: { temp1: "22", temp2: "22" },
-    terrace: { temp1: "22", temp2: "22" },
-    kitchen: { temp1: "22" },
-    balcony: { temp1: "22" },
-    laundry: { temp1: "22" },
-    guest_room: { temp1: "22" },
   });
   const [activeWidget, setActiveWidget] = useState<Widget>("bedroom");
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
+
+  const setTargetTemperatureMutations = useSetTemperature();
 
   const getAdjacentWidgets = (widget: Widget) => {
     const currentIndex = widgetOrder.indexOf(widget);
@@ -72,7 +59,6 @@ export default function TemperaturePage() {
     const isActive = widget === activeWidget;
     const { left, right } = getAdjacentWidgets(activeWidget);
     const isVisible = widget === activeWidget || widget === left || widget === right;
-    const hasTwoInputs = widget === "bathroom" || widget === "terrace";
 
     if (!isVisible) return null;
 
@@ -125,9 +111,12 @@ export default function TemperaturePage() {
               value={temperatures[widget].temp1}
               onClick={(e) => e.stopPropagation()}
               onChange={(e) => {
-                const value = e.target.value.replace(/[^0-9]/g, "");
-                if (value.length <= 2) {
-                  handleTemperatureChange(widget, "temp1", value);
+                {
+                  const value = e.target.value.replace(/[^0-9]/g, "");
+                  if (value.length <= 2) {
+                    handleTemperatureChange(widget, "temp1", value);
+                  }
+                  setTargetTemperatureMutations.mutate({ targetTemperature: value });
                 }
               }}
               className={`absolute bg-transparent text-center text-white outline-none`}
@@ -138,26 +127,6 @@ export default function TemperaturePage() {
                 color: "#604A3E",
               }}
             />
-            {hasTwoInputs && (
-              <input
-                type="text"
-                value={temperatures[widget].temp2}
-                onClick={(e) => e.stopPropagation()}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^0-9]/g, "");
-                  if (value.length <= 2) {
-                    handleTemperatureChange(widget, "temp2", value);
-                  }
-                }}
-                className={`absolute bg-transparent text-center text-white outline-none`}
-                style={{
-                  left: "-13px",
-                  bottom: "93px",
-                  fontSize: "25px",
-                  color: "#604A3E",
-                }}
-              />
-            )}
           </>
         )}
       </div>
@@ -170,34 +139,34 @@ export default function TemperaturePage() {
         return isActive
           ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bedroom_big_no_button-UmxhbciusCLkk2o2FcPY9pMrIuBwSU.png"
           : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bedroom_small-txnrJx7VOv97IFkg7ev59UVVBX5yVp.png";
-      case "living_room":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big_no_button-MpurZNnE4dgBy1JZTxNRwk9IYub7YD.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-JVyzGM5KURACYvQeE94vKZQuBw2CBD.png";
-      case "bathroom":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bathroom_big_no_button-kZbxlRKBpmNksIa4A3vhjqvN6dmips.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bath_small-tm8L7COTZBbrd3pn7YeZ7PHtItouxG.png";
-      case "terrace":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terrace_big_no_button-IF8jrIOvDAC0sua6cJ7rAtlzWYE2IE.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terrace_small-ClbGK7zdZZEVQQPyMW3yBmO6lOp2VF.png";
-      case "kitchen":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_big_no_button-Zu6ScmcEChkVkz6yzwYFsGZrAoWOb6.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_small-PVcA8Dh1BvlWyW2BckJXgHrr1LOF9X.png";
-      case "balcony":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_big_no_button-w6Y5EoerdPICzlxbHWLymeGn4LVs46.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_small-TyovYrmcI0YXDz8fWlCJfSOCY15nc2.png";
-      case "laundry":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/laundry_big_no_button-dMAsDUfzSY3FXRD9b4jqSZyk75mz0c.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/laundry_small-83Ya7zx5D0AnCP2fmuhKGErLZ03AKH.png";
-      case "guest_room":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big_no_button-R4fQLH9p5R4pkrDMsPuBbr68U0VX1s.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_small-PLiZlkcuvQ36eQ97WYnQukEFZxcFKD.png";
+      // case "living_room":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big_no_button-MpurZNnE4dgBy1JZTxNRwk9IYub7YD.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-JVyzGM5KURACYvQeE94vKZQuBw2CBD.png";
+      // case "bathroom":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bathroom_big_no_button-kZbxlRKBpmNksIa4A3vhjqvN6dmips.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bath_small-tm8L7COTZBbrd3pn7YeZ7PHtItouxG.png";
+      // case "terrace":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terrace_big_no_button-IF8jrIOvDAC0sua6cJ7rAtlzWYE2IE.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/terrace_small-ClbGK7zdZZEVQQPyMW3yBmO6lOp2VF.png";
+      // case "kitchen":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_big_no_button-Zu6ScmcEChkVkz6yzwYFsGZrAoWOb6.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_small-PVcA8Dh1BvlWyW2BckJXgHrr1LOF9X.png";
+      // case "balcony":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_big_no_button-w6Y5EoerdPICzlxbHWLymeGn4LVs46.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_small-TyovYrmcI0YXDz8fWlCJfSOCY15nc2.png";
+      // case "laundry":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/laundry_big_no_button-dMAsDUfzSY3FXRD9b4jqSZyk75mz0c.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/laundry_small-83Ya7zx5D0AnCP2fmuhKGErLZ03AKH.png";
+      // case "guest_room":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big_no_button-R4fQLH9p5R4pkrDMsPuBbr68U0VX1s.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_small-PLiZlkcuvQ36eQ97WYnQukEFZxcFKD.png";
     }
   };
 

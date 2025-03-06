@@ -1,11 +1,12 @@
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import { Link } from "react-router-dom";
+import { useHumidity, useVentilation } from "../hooks/useSensors";
 
-type Widget = "bedroom" | "living_room" | "guest_room";
+type Widget = "guest_room";
 
 type VentilationState = {
   [key in Widget]: {
@@ -17,11 +18,9 @@ type VentilationState = {
 
 export default function VentilationPage() {
   const [ventilation, setVentilation] = useState<VentilationState>({
-    bedroom: { isOn: false, co2: 0, humidity: 0 },
-    living_room: { isOn: false, co2: 0, humidity: 0 },
     guest_room: { isOn: false, co2: 0, humidity: 0 },
   });
-  const [activeWidget, setActiveWidget] = useState<Widget>("bedroom");
+  const [activeWidget, setActiveWidget] = useState<Widget>("guest_room");
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
 
   const handleWidgetClick = (widget: Widget) => {
@@ -36,6 +35,21 @@ export default function VentilationPage() {
       }
     }
   };
+
+  const { data: humidityData } = useHumidity();
+  const { data: ventilationData } = useVentilation();
+
+  useEffect(() => {
+    if (ventilationData && humidityData) {
+      setVentilation({
+        guest_room: {
+          co2: ventilationData.co2 || 0,
+          humidity: humidityData.humidity || 0,
+          isOn: ventilationData.state === "on",
+        },
+      });
+    }
+  }, [ventilationData, humidityData]);
 
   const handleVentilationChange = (widget: Widget, field: keyof VentilationState[Widget], value: any) => {
     setVentilation((prev) => ({
@@ -260,8 +274,6 @@ export default function VentilationPage() {
             <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
             <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
             <SwiperSlide>{renderWidget("guest_room")}</SwiperSlide>
-            <SwiperSlide>{renderWidget("bedroom")}</SwiperSlide>
-            <SwiperSlide>{renderWidget("living_room")}</SwiperSlide>
             <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
             <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
           </Swiper>

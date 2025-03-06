@@ -1,11 +1,13 @@
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import { Link } from "react-router-dom";
+import { useHumidity } from "../hooks/useSensors";
+import { useSetHumidity } from "../hooks/useSettings";
 
-type Widget = "bedroom" | "living_room" | "guest_room";
+type Widget = "bedroom";
 
 type HumidityState = {
   [key in Widget]: {
@@ -19,8 +21,6 @@ type HumidityState = {
 export default function HumidityPage() {
   const [humidity, setHumidity] = useState<HumidityState>({
     bedroom: { isOutputVisible: false, isFixedOutputVisible: true, currentHumidity: 0, fixedHumidity: 50 },
-    living_room: { isOutputVisible: false, isFixedOutputVisible: true, currentHumidity: 0, fixedHumidity: 50 },
-    guest_room: { isOutputVisible: false, isFixedOutputVisible: true, currentHumidity: 0, fixedHumidity: 50 },
   });
   const [activeWidget, setActiveWidget] = useState<Widget>("bedroom");
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
@@ -28,15 +28,19 @@ export default function HumidityPage() {
   const handleWidgetClick = (widget: Widget) => {
     setActiveWidget(widget);
     if (swiperInstance) {
-      if (widget === "guest_room") {
-        swiperInstance.slideTo(2); // Guest room center, bedroom right, plus left
-      } else if (widget === "living_room") {
-        swiperInstance.slideTo(4); // Living room center, bedroom left, plus right
-      } else {
-        swiperInstance.slideTo(3); // Bedroom center, guest room left, living room right
-      }
+      swiperInstance.slideTo(3); // Bedroom center, guest room left, living room right
     }
   };
+
+  const mutateHumidityState = useSetHumidity();
+
+  const { data: humidityData } = useHumidity();
+
+  useEffect(() => {
+    handleHumidityChange("bedroom", "currentHumidity", humidityData?.humidity || 0);
+    handleHumidityChange("bedroom", "isOutputVisible", humidityData?.state === "on");
+    handleHumidityChange("bedroom", "fixedHumidity", humidityData?.target || 0);
+  }, [humidityData]);
 
   const handleHumidityChange = (widget: Widget, field: keyof HumidityState[Widget], value: any) => {
     setHumidity((prev) => ({
@@ -60,6 +64,8 @@ export default function HumidityPage() {
         fixedHumidity: Math.min(99, Math.max(0, prev[widget].fixedHumidity + (increment ? 1 : -1))),
       },
     }));
+
+    mutateHumidityState.mutate({ target: humidity.bedroom.fixedHumidity, state: "on" });
   };
 
   const renderPlaceholderWidget = () => (
@@ -258,14 +264,14 @@ export default function HumidityPage() {
         return isActive
           ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bedroom_big-YIVZWSTBWfjU2VH5KBNdcCGMRHXm2Y.png"
           : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bedroom_small-H2v5dD4iK06hRVdnfvxNgu3f9XQXOm.png";
-      case "living_room":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big-GNCKJp3suOdoNToFldMEKueTCJ4Pui.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-nauPBDC1abCTEqk9uDP83ejCqMM4Kv.png";
-      case "guest_room":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big-YhS9tduoOlEyu8X6T4e56w2WlALdAJ.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_small-eCMKGzzGmHLM2HZzOyeXTSv6gmeOPC.png";
+      // case "living_room":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big-GNCKJp3suOdoNToFldMEKueTCJ4Pui.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-nauPBDC1abCTEqk9uDP83ejCqMM4Kv.png";
+      // case "guest_room":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big-YhS9tduoOlEyu8X6T4e56w2WlALdAJ.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_small-eCMKGzzGmHLM2HZzOyeXTSv6gmeOPC.png";
     }
   };
 
@@ -328,15 +334,13 @@ export default function HumidityPage() {
             slidesPerView={3}
             centeredSlides={true}
             allowTouchMove={false}
-            initialSlide={3}
+            initialSlide={2}
             loop={true}
             onSwiper={(swiper) => setSwiperInstance(swiper)}
           >
             <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
             <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
-            <SwiperSlide>{renderWidget("guest_room")}</SwiperSlide>
             <SwiperSlide>{renderWidget("bedroom")}</SwiperSlide>
-            <SwiperSlide>{renderWidget("living_room")}</SwiperSlide>
             <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
             <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
           </Swiper>

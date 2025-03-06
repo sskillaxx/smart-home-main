@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import Register from "./pages/Register";
 import HomeControls from "./pages/HomeControls";
 import SecuritySystem from "./pages/SecuritySystem";
@@ -14,7 +14,17 @@ import { SmartHomeControl } from "./components/SmartHomeControl";
 import { Welcome } from "./pages/Welcome";
 import { Login } from "./pages/Login";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5000,
+      refetchInterval: 5000, // <--- Глобальный интервал
+      refetchIntervalInBackground: false, // Обновление даже при невидимой вкладке
+    },
+  },
+});
 
 function App() {
   return (
