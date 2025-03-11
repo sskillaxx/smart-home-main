@@ -1,11 +1,14 @@
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { useEffect, useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { useDebouncedMutation } from "../hooks/useDebounce";
+import { useRollet } from "../hooks/useSensors";
+import { useSetRollet } from "../hooks/useSettings";
 import { Link } from "react-router-dom";
 
-type Widget = "living_room" | "guest_room" | "balcony" | "kitchen";
+type Widget = "living_room";
 
 type TimeState = {
   [key in Widget]: {
@@ -18,27 +21,31 @@ type TimeState = {
 export default function RollersPage() {
   const [times, setTimes] = useState<TimeState>({
     living_room: { isOn: false, openTime: "00:00", closeTime: "00:00" },
-    guest_room: { isOn: false, openTime: "00:00", closeTime: "00:00" },
-    balcony: { isOn: false, openTime: "00:00", closeTime: "00:00" },
-    kitchen: { isOn: false, openTime: "00:00", closeTime: "00:00" },
   });
   const [activeWidget, setActiveWidget] = useState<Widget>("living_room");
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
 
+  const { data: rolletData } = useRollet();
+
+  const mutateRolletState = useSetRollet();
+
+  useEffect(() => {
+    setTimes({
+      living_room: {
+        isOn: rolletData ? rolletData?.mode === "auto" : false,
+        closeTime: rolletData ? rolletData?.close_time : null,
+        openTime: rolletData ? rolletData?.open_time : null,
+      },
+    });
+  }, [rolletData]);
+
   const handleWidgetClick = (widget: Widget) => {
     setActiveWidget(widget);
     if (swiperInstance) {
-      if (widget === "guest_room") {
-        swiperInstance.slideTo(2);
-      } else if (widget === "balcony") {
-        swiperInstance.slideTo(4);
-      } else if (widget === "kitchen") {
-        swiperInstance.slideTo(5); // Kitchen center, balcony left, plus right
-      } else {
-        swiperInstance.slideTo(3);
-      }
+      swiperInstance.slideTo(3);
     }
   };
+  const debouncedMutate = useDebouncedMutation(mutateRolletState, "rollet");
 
   const handleTimeChange = (widget: Widget, field: "openTime" | "closeTime", value: string) => {
     if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value) || value === "") {
@@ -49,6 +56,12 @@ export default function RollersPage() {
           [field]: value,
         },
       }));
+      const payload = {
+        mode: rolletData.mode,
+        state: rolletData.state,
+        [field === "closeTime" ? "close_time" : "open_time"]: value,
+      };
+      debouncedMutate(payload);
     }
   };
 
@@ -97,6 +110,7 @@ export default function RollersPage() {
                     isOn: !prev[widget].isOn,
                   },
                 }));
+                mutateRolletState.mutate({ mode: times.living_room.isOn ? "time" : "auto", state: "on" });
               }}
               className="absolute rounded-full transition-all duration-450 cursor-pointer"
               style={{
@@ -156,24 +170,24 @@ export default function RollersPage() {
       switch (widget) {
         case "living_room":
           return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-4xyaEYMAQ9XshK1XRSNWLEjmkc6J7e.png";
-        case "guest_room":
-          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_small-WKADPKjxH2p6lfLwjlJ5q2QzgsmjZi.png";
-        case "balcony":
-          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_small-Tiafzw9XhzV7cAC936wC4OlDpejVyk.png";
-        case "kitchen":
-          return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_small-wD43fSo1Y684jh8rrV9NBMYcVdcieH.png";
+        // case "guest_room":
+        //   return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_small-WKADPKjxH2p6lfLwjlJ5q2QzgsmjZi.png";
+        // case "balcony":
+        //   return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_small-Tiafzw9XhzV7cAC936wC4OlDpejVyk.png";
+        // case "kitchen":
+        //   return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_small-wD43fSo1Y684jh8rrV9NBMYcVdcieH.png";
       }
     }
 
     switch (widget) {
       case "living_room":
         return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big-zlQhGtNeBjZvn3ec3RXUltdqfkC1OC.png";
-      case "guest_room":
-        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big-jFLz5cCMcnUEsZrNQ3s145DLe6m2Wn.png";
-      case "balcony":
-        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_big-SIQzAxvEzd17neRgxMu8Tr23JjfoHj.png";
-      case "kitchen":
-        return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_big-6JcoYI4i91yPye2rrJqQRNAKX8T4TN.png";
+      // case "guest_room":
+      //   return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big-jFLz5cCMcnUEsZrNQ3s145DLe6m2Wn.png";
+      // case "balcony":
+      //   return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/balcon_big-SIQzAxvEzd17neRgxMu8Tr23JjfoHj.png";
+      // case "kitchen":
+      //   return "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/kitchen_big-6JcoYI4i91yPye2rrJqQRNAKX8T4TN.png";
     }
   };
 
@@ -235,18 +249,18 @@ export default function RollersPage() {
             spaceBetween={50}
             slidesPerView={3}
             centeredSlides={true}
-            allowTouchMove={false}
+            allowTouchMove={true}
             initialSlide={2}
             loop={true}
             onSwiper={(swiper) => setSwiperInstance(swiper)}
           >
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
-            <SwiperSlide>{renderWidget("guest_room")}</SwiperSlide>
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
+            {/* <SwiperSlide>{renderWidget("guest_room")}</SwiperSlide> */}
             <SwiperSlide>{renderWidget("living_room")}</SwiperSlide>
-            <SwiperSlide>{renderWidget("balcony")}</SwiperSlide>
-            <SwiperSlide>{renderWidget("kitchen")}</SwiperSlide>
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
+            {/* <SwiperSlide>{renderWidget("balcony")}</SwiperSlide> */}
+            {/* <SwiperSlide>{renderWidget("kitchen")}</SwiperSlide> */}
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
           </Swiper>
         </div>
       </div>
