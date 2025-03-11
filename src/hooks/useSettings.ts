@@ -12,3 +12,5 @@ export const useSetTemperature = () =>
 export const useSetLight = () => useMutation((data: object) => setSettings.light(data).then((res) => res.data));
 
 export const useSetHumidity = () => useMutation((data: object) => setSettings.humidity(data).then((res) => res.data));
+
+export const useSetRollet = () => useMutation((data: object) => setSettings.rollet(data).then((res) => res.data));
