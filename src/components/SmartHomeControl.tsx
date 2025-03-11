@@ -1,7 +1,14 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useState } from "react";
+import { useHumidity, useLight, useRollet, useSecurity, useTemperature, useVentilation } from "../hooks/useSensors";
+import {
+  useSetHumidity,
+  useSetLight,
+  useSetRollet,
+  useSetSecurity,
+  useSetTemperature,
+  useSetVentilation,
+} from "../hooks/useSettings";
 import {
   Settings2,
   Wind,
@@ -14,15 +21,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useHumidity, useLight, useSecurity, useTemperature, useVentilation } from "../hooks/useSensors";
-import {
-  useSetHumidity,
-  useSetLight,
-  useSetSecurity,
-  useSetTemperature,
-  useSetVentilation,
-} from "../hooks/useSettings";
 
 interface ControlButtonProps {
   icon: React.ReactNode;
@@ -113,11 +114,11 @@ export const SmartHomeControl: React.FC = () => {
     field6: 22,
   });
 
-  const mutateTemperatureState = useSetTemperature();
   const mutateVentilationState = useSetVentilation();
   const mutateHumidityState = useSetHumidity();
   const mutateSecurityState = useSetSecurity();
   const mutateLigthState = useSetLight();
+  const mutateRolletState = useSetRollet();
 
   const handleControl = (type: string) => {
     navigate(`/${type}`);
@@ -136,12 +137,11 @@ export const SmartHomeControl: React.FC = () => {
       case "security":
         mutateSecurityState.mutate({ state: value ? 1 : 0 });
         break;
-      case "temperature":
-        mutateTemperatureState.mutate({ state: value ? 1 : 0, targetTemperature: "" });
-        break;
       case "ventilation":
         mutateVentilationState.mutate({ state: value ? 1 : 0 });
         break;
+      case "blinds":
+        mutateRolletState.mutate({ state: value ? 1 : 0 });
     }
   };
 
@@ -155,29 +155,31 @@ export const SmartHomeControl: React.FC = () => {
 
   const { data: temperatureData } = useTemperature();
   const { data: humidityData } = useHumidity();
-  const { data: ventialtionData } = useVentilation();
+  const { data: ventilationData } = useVentilation();
   const { data: securityData } = useSecurity();
   const { data: lightData } = useLight();
+  const { data: rolletData } = useRollet();
 
   useEffect(() => {
     setOutputValues({
       field1: 500,
       field2: lightData ? lightData.state === "on" : false,
-      field3: ventialtionData ? ventialtionData.state === "on" : false,
-      field4: securityData ? securityData.state === "on" : false,
+      field3: ventilationData ? ventilationData.state === "on" : false,
+      field4: securityData ? securityData.state === "on" || securityData.state === "hacking" : false,
       field5: humidityData ? humidityData?.humidity : 0,
-      field6: temperatureData ? temperatureData?.temperature : 0,
+      field6: temperatureData ? temperatureData?.data : 0,
     });
 
     setControlStates({
-      ventilation: ventialtionData ? ventialtionData.state === "on" : false,
+      ventilation: ventilationData ? ventilationData.state === "on" : false,
       humidity: humidityData ? humidityData.state === "on" : false,
       light: lightData ? lightData.state === "on" : false,
-      security: securityData ? securityData.state === "on" : false,
+      security: securityData ? securityData.state === "on" || securityData.state === "hacking" : false,
       temperature: temperatureData ? temperatureData.state === "on" : false,
-      blinds: true,
+      blinds: rolletData ? rolletData.state === "on" : false,
     });
-  }, [temperatureData, humidityData, ventialtionData, securityData, lightData]);
+    console.log(rolletData);
+  }, [temperatureData, humidityData, ventilationData, securityData, lightData, rolletData]);
 
   const buttonPositions = {
     left: { left: "15px", top: "50%", transform: "translateY(-50%)" },
