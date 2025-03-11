@@ -10,7 +10,7 @@ function SecuritySystem() {
 
   const [isSecuritySystemOn, setIsSecuritySystemOn] = useState(false);
   useEffect(() => {
-    setIsSecuritySystemOn(securityData?.state === "on");
+    setIsSecuritySystemOn(securityData?.state === "on" || securityData?.state === "hacking");
   }, [securityData]);
   return (
     <div
