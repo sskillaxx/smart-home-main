@@ -7,6 +7,7 @@ export const getSensors = {
   ventilation: () => apiClient.get("/api/sensors/ventilation"),
   light: () => apiClient.get("/api/sensors/light"),
   humidity: () => apiClient.get("/api/sensors/humidity"),
+  rollet: () => apiClient.get("/api/sensors/rollet"),
 };
 
 // Settings API
@@ -16,4 +17,5 @@ export const setSettings = {
   temperature: (data: object) => apiClient.post("/api/settings/temperature", data),
   light: (data: object) => apiClient.post("/api/settings/light", data),
   humidity: (data: object) => apiClient.post("/api/settings/humidity", data),
+  rollet: (data: object) => apiClient.post("/api/settings/rollet", data),
 };

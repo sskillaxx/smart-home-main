@@ -1,30 +1,18 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "react-query";
-import Register from "./pages/Register";
-import HomeControls from "./pages/HomeControls";
-import SecuritySystem from "./pages/SecuritySystem";
-import CameraInfo from "./pages/CameraInfo";
-import VentilationPage from "./pages/VentilationPage";
-import TemperaturePage from "./pages/TemperaturePage";
-import RollersPage from "./pages/RollersPage";
-import LightPage from "./pages/LightPage";
-import HumidityPage from "./pages/HumidityPage";
+import { queryClient } from "./api/apiClient";
 import { SmartHomeControl } from "./components/SmartHomeControl";
-import { Welcome } from "./pages/Welcome";
+import CameraInfo from "./pages/CameraInfo";
+import HomeControls from "./pages/HomeControls";
+import HumidityPage from "./pages/HumidityPage";
+import LightPage from "./pages/LightPage";
 import { Login } from "./pages/Login";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5000,
-      refetchInterval: 5000, // <--- Глобальный интервал
-      refetchIntervalInBackground: false, // Обновление даже при невидимой вкладке
-    },
-  },
-});
+import Register from "./pages/Register";
+import RollersPage from "./pages/RollersPage";
+import SecuritySystem from "./pages/SecuritySystem";
+import TemperaturePage from "./pages/TemperaturePage";
+import VentilationPage from "./pages/VentilationPage";
+import { Welcome } from "./pages/Welcome";
+import { QueryClientProvider } from "react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
