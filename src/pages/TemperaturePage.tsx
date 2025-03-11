@@ -1,10 +1,13 @@
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { useEffect, useState } from "react";
 import type { Swiper as SwiperType } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { Link } from "react-router-dom";
+import { useDebouncedMutation } from "../hooks/useDebounce";
+import { useTemperature } from "../hooks/useSensors";
 import { useSetTemperature } from "../hooks/useSettings";
+import { parse } from "date-fns";
+import { Link } from "react-router-dom";
 
 type Widget = "bedroom";
 
@@ -25,6 +28,12 @@ export default function TemperaturePage() {
   const [activeWidget, setActiveWidget] = useState<Widget>("bedroom");
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
 
+  const { data: temperatureData } = useTemperature();
+
+  useEffect(() => {
+    setTemperatures({ bedroom: { temp1: temperatureData?.target || 0 } });
+  }, [temperatureData]);
+
   const setTargetTemperatureMutations = useSetTemperature();
 
   const getAdjacentWidgets = (widget: Widget) => {
@@ -44,6 +53,8 @@ export default function TemperaturePage() {
       swiperInstance.slideTo(newIndex + 1);
     }
   };
+
+  const debouncedMutate = useDebouncedMutation(setTargetTemperatureMutations, "temperature");
 
   const handleTemperatureChange = (widget: Widget, tempKey: "temp1" | "temp2", value: string) => {
     setTemperatures((prev) => ({
@@ -116,7 +127,7 @@ export default function TemperaturePage() {
                   if (value.length <= 2) {
                     handleTemperatureChange(widget, "temp1", value);
                   }
-                  setTargetTemperatureMutations.mutate({ targetTemperature: value });
+                  debouncedMutate({ temperature: parseFloat(value) });
                 }
               }}
               className={`absolute bg-transparent text-center text-white outline-none`}
