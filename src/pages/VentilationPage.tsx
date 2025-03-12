@@ -1,10 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { Link } from "react-router-dom";
+import { queryClient } from "../api/apiClient";
+import { useDebouncedMutation } from "../hooks/useDebounce";
 import { useHumidity, useVentilation } from "../hooks/useSensors";
+import { useSetVentilation } from "../hooks/useSettings";
+import { Link } from "react-router-dom";
 
 type Widget = "guest_room";
 
@@ -39,16 +42,18 @@ export default function VentilationPage() {
   const { data: humidityData } = useHumidity();
   const { data: ventilationData } = useVentilation();
 
+  const mutateVentilationState = useSetVentilation();
+
+  const debouncedMutation = useDebouncedMutation(mutateVentilationState);
+
   useEffect(() => {
-    if (ventilationData && humidityData) {
-      setVentilation({
-        guest_room: {
-          co2: ventilationData.co2 || 0,
-          humidity: humidityData.humidity || 0,
-          isOn: ventilationData.state === "on",
-        },
-      });
-    }
+    setVentilation({
+      guest_room: {
+        co2: ventilationData?.target.toFixed(2) || 0,
+        humidity: humidityData?.humidity || 0,
+        isOn: ventilationData?.cooler_state === "on",
+      },
+    });
   }, [ventilationData, humidityData]);
 
   const handleVentilationChange = (widget: Widget, field: keyof VentilationState[Widget], value: any) => {
@@ -60,8 +65,11 @@ export default function VentilationPage() {
       },
     }));
 
-    if (field === "isOn" && value === true) {
-      updateRandomValues(widget);
+    if (field === "isOn") {
+      // updateRandomValues(widget);
+      mutateVentilationState.mutate({ state: "on", cooler_state: value ? "on" : "off" });
+    } else if (field === "co2") {
+      debouncedMutation({ state: "on", value: value.toFixed(2), cooler_state: "off" });
     }
   };
 
@@ -155,36 +163,52 @@ export default function VentilationPage() {
                 }}
               />
             </button>
-            {ventilation[widget].isOn && (
-              <>
-                <span
-                  className={`absolute bg-transparent text-center transition-opacity duration-300`}
-                  style={{
-                    left: "39.5px",
-                    bottom: "47px",
-                    width: "80px",
-                    fontSize: "25px",
-                    color: "#604A3E",
-                    opacity: 1,
-                  }}
-                >
-                  {ventilation[widget].co2 || "0"}
-                </span>
-                <span
-                  className={`absolute bg-transparent text-center transition-opacity duration-300`}
-                  style={{
-                    right: "38px",
-                    bottom: "47px",
-                    width: "80px",
-                    fontSize: "25px",
-                    color: "#604A3E",
-                    opacity: 1,
-                  }}
-                >
-                  {ventilation[widget].humidity || "0"}
-                </span>
-              </>
-            )}
+            <>
+              {/* <span
+                className={`absolute bg-transparent text-center transition-opacity duration-300`}
+                style={{
+                  left: "39.5px",
+                  bottom: "47px",
+                  width: "80px",
+                  fontSize: "25px",
+                  color: "#604A3E",
+                  opacity: 1,
+                }}
+              >
+                {ventilation[widget].co2 || "0"}
+              </span> */}
+              <input
+                type="number"
+                className={`absolute bg-transparent text-center transition-opacity duration-300`}
+                style={{
+                  left: "39.5px",
+                  bottom: "47px",
+                  width: "80px",
+                  fontSize: "24px",
+                  color: "#604A3E",
+                  opacity: 1,
+                  border: 0,
+                  outline: 0,
+                }}
+                value={ventilation.guest_room.co2 || 0}
+                onChange={(e) => {
+                  handleVentilationChange(widget, "co2", +e.target.value);
+                }}
+              />
+              <span
+                className={`absolute bg-transparent text-center transition-opacity duration-300`}
+                style={{
+                  right: "38px",
+                  bottom: "47px",
+                  width: "80px",
+                  fontSize: "25px",
+                  color: "#604A3E",
+                  opacity: 1,
+                }}
+              >
+                {ventilation[widget].humidity || "0"}
+              </span>
+            </>
           </>
         )}
       </div>
@@ -193,14 +217,14 @@ export default function VentilationPage() {
 
   const getWidgetImage = (widget: Widget, isActive: boolean) => {
     switch (widget) {
-      case "bedroom":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bedroom_big-RndF2MMQ5qWpLFlJotX8vBLX3zdnUL.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bedroom_small-H2v5dD4iK06hRVdnfvxNgu3f9XQXOm.png";
-      case "living_room":
-        return isActive
-          ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big-xEIOYVFK1qx3XPld1qeLRaNKidVC1m.png"
-          : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-nauPBDC1abCTEqk9uDP83ejCqMM4Kv.png";
+      // case "bedroom":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bedroom_big-RndF2MMQ5qWpLFlJotX8vBLX3zdnUL.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/bedroom_small-H2v5dD4iK06hRVdnfvxNgu3f9XQXOm.png";
+      // case "living_room":
+      //   return isActive
+      //     ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_big-xEIOYVFK1qx3XPld1qeLRaNKidVC1m.png"
+      //     : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/living_room_small-nauPBDC1abCTEqk9uDP83ejCqMM4Kv.png";
       case "guest_room":
         return isActive
           ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/guest_room_big-0IhR5I1zott30skZ86VPpGyriIlSFd.png"
@@ -271,11 +295,11 @@ export default function VentilationPage() {
             loop={true}
             onSwiper={(swiper) => setSwiperInstance(swiper)}
           >
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
             <SwiperSlide>{renderWidget("guest_room")}</SwiperSlide>
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
           </Swiper>
         </div>
       </div>
