@@ -129,19 +129,19 @@ export const SmartHomeControl: React.FC = () => {
 
     switch (type) {
       case "humidity":
-        mutateHumidityState.mutate({ state: value ? 1 : 0, humidity: "" });
+        mutateHumidityState.mutate({ state: value ? "on" : "off" });
         break;
       case "light":
-        mutateLigthState.mutate({ state: value ? 1 : 0, duration: "", mode: "" });
+        mutateLigthState.mutate({ state: value ? "on" : "off" });
         break;
       case "security":
         mutateSecurityState.mutate({ state: value ? 1 : 0 });
         break;
       case "ventilation":
-        mutateVentilationState.mutate({ state: value ? 1 : 0 });
+        mutateVentilationState.mutate({ state: value ? "on" : "off" });
         break;
       case "blinds":
-        mutateRolletState.mutate({ state: value ? 1 : 0 });
+        mutateRolletState.mutate({ state: value ? "on" : "off" });
     }
   };
 
@@ -162,7 +162,7 @@ export const SmartHomeControl: React.FC = () => {
 
   useEffect(() => {
     setOutputValues({
-      field1: 500,
+      field1: ventilationData ? ventilationData?.value.toFixed(0) : 0,
       field2: lightData ? lightData.state === "on" : false,
       field3: ventilationData ? ventilationData.state === "on" : false,
       field4: securityData ? securityData.state === "on" || securityData.state === "hacking" : false,
