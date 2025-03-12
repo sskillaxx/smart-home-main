@@ -45,7 +45,7 @@ export default function RollersPage() {
       swiperInstance.slideTo(3);
     }
   };
-  const debouncedMutate = useDebouncedMutation(mutateRolletState, "rollet");
+  const debouncedMutate = useDebouncedMutation(mutateRolletState);
 
   const handleTimeChange = (widget: Widget, field: "openTime" | "closeTime", value: string) => {
     if (/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value) || value === "") {
