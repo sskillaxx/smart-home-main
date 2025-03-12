@@ -1,11 +1,11 @@
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
+import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import { Link } from "react-router-dom";
 import { useHumidity } from "../hooks/useSensors";
 import { useSetHumidity } from "../hooks/useSettings";
+import { Link } from "react-router-dom";
 
 type Widget = "bedroom";
 
@@ -51,62 +51,26 @@ export default function HumidityPage() {
       },
     }));
 
-    if (field === "isOutputVisible" && value === true) {
-      updateRandomValues(widget);
+    if (field === "isOutputVisible" && humidity.bedroom.isOutputVisible != value) {
+      mutateHumidityState.mutate({ state: value ? "on" : "off" });
     }
+
+    // if (field === "isOutputVisible" && value === true) {
+    //   updateRandomValues(widget);
+    // }
   };
 
   const adjustFixedHumidity = (widget: Widget, increment: boolean) => {
+    const updatedHumidity = Math.min(99, Math.max(0, humidity.bedroom.fixedHumidity + (increment ? 1 : -1)));
     setHumidity((prev) => ({
       ...prev,
       [widget]: {
         ...prev[widget],
-        fixedHumidity: Math.min(99, Math.max(0, prev[widget].fixedHumidity + (increment ? 1 : -1))),
+        fixedHumidity: updatedHumidity,
       },
     }));
 
-    mutateHumidityState.mutate({ target: humidity.bedroom.fixedHumidity, state: "on" });
-  };
-
-  const renderPlaceholderWidget = () => (
-    <div
-      className="rounded-[30px] flex items-center justify-center"
-      style={{
-        width: "184px",
-        height: "293px",
-        backgroundImage: `url(https://hebbkx1anhila5yf.public.blob.vercel-storage.com/add_new-J5HyLJKMu1LO8lgU1rPfJGVnDdpeJb.png)`,
-        backgroundSize: "contain",
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center",
-      }}
-    />
-  );
-
-  const updateRandomValues = (widget: Widget) => {
-    let intervalId: NodeJS.Timeout | null = null;
-
-    intervalId = setInterval(() => {
-      if (humidity[widget].isOutputVisible) {
-        setHumidity((prev) => ({
-          ...prev,
-          [widget]: {
-            ...prev[widget],
-            currentHumidity: Math.floor(Math.random() * 100),
-          },
-        }));
-      } else {
-        if (intervalId) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-      }
-    }, 2000); // Update every 2 seconds
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
+    mutateHumidityState.mutate({ humidity: updatedHumidity, state: "on" });
   };
 
   const renderWidget = (widget: Widget) => {
@@ -338,11 +302,11 @@ export default function HumidityPage() {
             loop={true}
             onSwiper={(swiper) => setSwiperInstance(swiper)}
           >
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
             <SwiperSlide>{renderWidget("bedroom")}</SwiperSlide>
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
-            <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide>
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
+            {/* <SwiperSlide>{renderPlaceholderWidget()}</SwiperSlide> */}
           </Swiper>
         </div>
       </div>
